@@ -18,22 +18,39 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    steps:
-    - uses: actions/checkout@main
+    # steps:
+    # - uses: actions/checkout@main
     # - uses: actions/setup-python@v2
     #   with:
     #     python-version: '3.8'
     # - run: pip install -r requirements.txt
-    - name: Run TestProject Agent
+    # - name: Run TestProject Agent
+    #   env:
+    #     TP_API_KEY: ${{ secrets.TP_API_KEY }}
+    #   run: |
+    #     envsubst < .github/ci/docker-compose.yml > docker-compose.yml
+    #     cat docker-compose.yml
+    #     docker-compose -f docker-compose.yml up -d
+    # - name: Wait for Agent to Register
+    #   run: bash .github/ci/wait_for_agent.sh
+    # - run: pytest
+    #   env:
+    #     TP_DEV_TOKEN: ${{ secrets.TP_DEV_TOKEN }}
+    #     TP_AGENT_URL: http://localhost:8585
+
+    # echo $GITHUB_RUN_ID
+
+    steps:
+    - uses: actions/checkout@main
+
+    - name: Run testProject Agent for Login Tests
       env:
-        TP_API_KEY: ${{ secrets.TP_API_KEY }}
+        TP_API_KEY: ${{ secrets.TP_API_KEY }} # < Let Secrets handle your keys
+        APPLICATION_URL: ${{ secrets.APPLICATION_URL }}
+        JOB_ID: Q9WdIN3EEUyE437qx6fA9g # User login test
       run: |
         envsubst < .github/ci/docker-compose.yml > docker-compose.yml
         cat docker-compose.yml
-        docker-compose -f docker-compose.yml up -d
-    - name: Wait for Agent to Register
-      run: bash .github/ci/wait_for_agent.sh
-    - run: pytest
-      env:
-        TP_DEV_TOKEN: ${{ secrets.TP_DEV_TOKEN }}
-        TP_AGENT_URL: http://localhost:8585
+        docker-compose -f docker-compose.yml up --abort-on-container-exit
+        gh auth login
+        gh run view --job $GITHUB_RUN_ID --log | grep error

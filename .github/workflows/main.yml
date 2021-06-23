@@ -59,5 +59,8 @@ jobs:
         cat docker-compose.yml
         EXECUTION_STRING=$(docker-compose -f docker-compose.yml up --abort-on-container-exit | grep 'Downloaded execution package')
         EXECUTION_ID=`echo ${EXECUTION_STRING##* }`
-        echo $EXECUTION_ID
+        echo $EXECUTION_ID >> $EXECUTION_ID
         curl -X GET "https://api.testproject.io/v2/projects/${{ secrets.TP_PROJECT_ID }}/jobs/${JOB_ID}/reports/${EXECUTION_ID}?details=true&format=TestProject" -H "accept: application/json" -H "Authorization: ${{ secrets.TP_API_KEY }}"
+    - name: Fetch test result
+      run: |
+        echo $EXECUTION_ID

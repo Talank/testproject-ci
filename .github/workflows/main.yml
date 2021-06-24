@@ -56,8 +56,10 @@ jobs:
         JOB_ID: Q9WdIN3EEUyE437qx6fA9g # User login test
       run: |
         envsubst < .github/ci/docker-compose.yml > docker-compose.yml
+        ls -la
+        export TEST_RESULT=".github/testresults"
         cat docker-compose.yml
         EXECUTION_STRING=$(docker-compose -f docker-compose.yml up --abort-on-container-exit | grep 'Downloaded execution package')
         EXECUTION_ID=`echo ${EXECUTION_STRING##* }`
-        echo $EXECUTION_ID
-        curl -X GET "https://api.testproject.io/v2/projects/${{ secrets.TP_PROJECT_ID }}/jobs/${JOB_ID}/reports/${EXECUTION_ID}?details=true&format=TestProject" -H "accept: application/json" -H "Authorization: ${{ secrets.TP_API_KEY }}" | jq
+        curl -X GET "https://api.testproject.io/v2/projects/${{ secrets.TP_PROJECT_ID }}/jobs/${JOB_ID}/reports/${EXECUTION_ID}?details=true&format=TestProject" -H "accept: application/json" -H "Authorization: ${{ secrets.TP_API_KEY }}" | jq > ${TEST_RESULT}/login${EXECUTION_ID}.json
+        cat ${TEST_RESULT}/login${EXECUTION_ID}.json

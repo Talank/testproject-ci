@@ -42,6 +42,4 @@ jobs:
       run: |
         envsubst < .github/ci/docker-compose.yml > docker-compose.yml
         export TEST_RESULT=".github/testresults"
-        EXECUTION_STRING=$(docker-compose -f docker-compose.yml up --abort-on-container-exit | grep 'Downloaded execution package')
-        
-        echo $EXECUTION_STRING
+        docker-compose -f docker-compose.yml up --abort-on-container-exit
